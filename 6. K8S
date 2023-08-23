@@ -1,0 +1,300 @@
+DAY-01
+
+K8S:
+
+ARCHITECTURE:
+CLUSTER
+NODES
+PODS
+CONTAINERS
+APPLICATION
+
+
+MASTER NODE:
+1. API SERVER: Communicate with user, it takes command and gives op.
+2. ETCD: it is db for cluster,it stores all info about cluster.
+3. kube-scheduler: schedule pods on worker nodes.
+4. controller: controls the k8s components.
+
+
+WOKRER NODE:
+kubelet: its an agent which communicate with master.
+kubeproxy: deals with networking of pods in cluster.
+pods: group of containers.
+container engine: creates containers
+
+TYPES OF K8S CLUSTER:
+1. SELF MANAGED:
+A. KOPS
+B. KUBEADM
+C. MINIKUBE
+
+
+2. CLOUD MANAGED:
+A. AKS
+B. GKS
+C. EKS
+
+
+MINIKUBE:
+It is a tool used to setup single node cluster on K8's. 
+It contains API Servers, ETDC database and container runtime
+It helps you to containerized applications.
+It is used for development, testing, and experimentation purposes on local. Here Master and worker runs on same machine
+It is a platform Independent.
+By default it will create one node only.
+Installing Minikube is simple compared to other tools.
+
+NOTE: But we dont implement this in real-time
+
+REQUIRMENTS:
+2 CPUs or more
+2GB of free memory
+20GB of free disk space
+Internet connection
+Container or virtual machine manager, such as: Docker.
+
+
+STEUP:
+sudo apt update -y
+sudo apt upgrade -y
+sudo apt install curl wget apt-transport-https -y
+sudo curl -fsSL https://get.docker.com -o get-docker.sh
+sudo sh get-docker.sh
+sudo curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+sudo mv minikube-linux-amd64 /usr/local/bin/minikube
+sudo chmod +x /usr/local/bin/minikube
+sudo minikube version
+sudo curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo curl -LO "https://dl.k8s.io/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl.sha256"
+sudo echo "$(cat kubectl.sha256) kubectl" | sha256sum --check
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+sudo minikube start --driver=docker --force
+
+
+KUBECTL: 
+kubectl is the CLI which is used to interact with a Kubernetes cluster.
+We can create, manage pods, services, deployments, and other resources We can also monitoring, troubleshooting, scaling and updating the pods. To perform these tasks it communicates with the Kubernetes API server. It has many options and commands, to work on.
+The configuration of kubectl is in the $HOME/.kube directory.
+The latest version is 1.27
+
+PODS:
+It is a smallest unit of deployment in K8's.
+It is a group of containers.
+Pods are ephemeral (short living objects)
+Mostly we can use single container inside a pod but if we required, we can create multiple containers inside a same pod.
+when we create a pod, containers inside pods can share the same network namespace, and can share the same storage volumes .
+While creating pod, we must specify the image, along with any necessary configuration and resource limits.
+K8's cannot communicate with containers, they can communicate with only pods.
+ We can create this pod in two ways, 
+1. Imperative(command) 
+2. Declarative (Manifest file)
+
+
+IMPERATIVE: using commands
+kubectl run pod1 --image rahamshaik/rechargepaytm:latest
+kubectl get pods
+kubectl get pods -o wide
+kubectl describe pods pod1
+kubectl delete pods pod1
+
+DECLARTIVE: using files (manifest)
+
+vim pod.yml
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod1
+spec: 
+  containers:
+  - name: cont1
+    image: rahamshaik/rechargepaytm:latest
+
+
+kubectl create -f pod.yml
+
+HISTORY:
+1  vim minikube.sh
+    2  vim minikube.sh
+    3  sh minikube.sh
+    4  cat minikube.sh
+    5  ls -al
+    6  kubectl run pod1 --image rahamshaik/rechargepaytm:latest
+    7  kubectl get pods
+    8  kubectl get pods -o wide
+    9  kubectl describe pod pod1
+   10  kubectl delete pod pod1
+   11  vim pod.yml
+   12  kubectl create -f pod.yml
+   13  vim pod.yml
+   14  kubectl create -f pod.yml
+   15  kubectl get po
+   16  kubectl get po -o wide
+   17  kubectl describe pod pod1
+   18  kubectl delete pod pod1
+   19  history
+
+=================================================================================
+
+
+LABLE: assing to a pod for identification.
+SELECTOR: used to identify the pod with same label.
+
+
+REPLICASET:
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  labels:
+    app: swiggy
+  name: swiggy-rs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: swiggy
+  template:
+    metadata:
+      labels:
+        app: swiggy
+    spec:
+      containers:
+      - name: cont1
+        image: nginx
+
+kubectl create -f abc.yml
+
+kubectl get rs
+kubectl get rs -o wide
+kubectl describe rs swiggy-rs
+kubectl delete rs swiggy-rs
+kubectl edit rs/swiggy-rs
+
+
+
+SCALING: 
+
+SCALE-IN: Increasing the count of pods
+kubectl scale rs/swiggy-rs --replicas=10
+
+SCALE-OUT: Decreasing the count of pods
+kubectl scale rs/swiggy-rs --replicas=5
+
+
+DEPLOYMENT:
+it will do all operations link RS.
+it will do roll back which cannot be done in rs.
+
+rs -- > pods
+deployment -- > rs -- > pods
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: swiggy
+  name: swiggy-rs
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: swiggy
+  template:
+    metadata:
+      labels:
+        app: swiggy
+    spec:
+      containers:
+      - name: cont1
+        image: nginx
+
+kubectl get deploy
+kubectl get deploy -o wide
+kubectl describe deploy swiggy-rs
+kubectl edit deploy/swiggy-rs
+kubectl delete deploy swiggy-rs
+
+HISTORY:
+ 1  vim minikube.sh
+    2  sh minikube.sh
+    3  kubectl run pod1 --image nginx
+    4  kubectl delete pod pod1
+    5  kubectl get po
+    6  vim abc.yml
+    7  ll
+    8  kubectl create -f abc.yml
+    9  kubectl get po
+   10  kubectl get pods
+   11  kubectl get po
+   12  kubectl delete pod swiggy-rs-7w6wv
+   13  kubectl get po
+   14  kubectl delete pod swiggy-rs-gnp9q
+   15  kubectl get po
+   16  vim abc.yml
+   17  kubectl get po
+   18  kubectl get po -o wide
+   19  kubectl api-resources
+   20  kubectl get rs
+   21  kubectl get rs -o wide
+   22  vim abc.yml
+   23  kubectl describe rs swiggy-rs
+   24  kubectl scale rs/swiggy-rs --replicas=10
+   25  kubectl get po
+   26  kubectl describe rs swiggy-rs
+   27  kubectl get po --show labels
+   28  kubectl get po show --labels
+   29  kubectl get po  --labels
+   30  kubectl get po --help
+   31  kubectl get po -l
+   32  kubectl get po show -l
+   33  kubectl get pods -l app=swiggy
+   34  kubectl run pod1 --image nginx
+   35  kubectl run pod2 --image nginx
+   36* kubectl run pod3 --image ngin
+   37  kubectl get pods -l app=swiggy
+   38  kubectl scale rs/swiggy-rs --replicas=5
+   39  kubectl get po
+   40  kubectl scale rs/swiggy-rs --replicas=15
+   41  kubectl get po
+   42  kubectl scale rs/swiggy-rs --replicas=5
+   43  kubectl edit rs/swiggy-rs
+   44  kubectl describe rs swiggy-rs
+   45  kubectl get po
+   46  kubectl scale rs/swiggy-rs --replicas=7
+   47  kubectl get po
+   48  kubectl describe pod swiggy-rs-6gsbg
+   49  kubectl edit rs/swiggy-rs
+   50  kubectl describe pod swiggy-rs-6gsbg
+   51  kubectl get po
+   52  kubectl describe pod swiggy-rs-hcdst
+   53  kubectl describe rs swiggy-rs
+   54  kubectl get po
+   55  kubectl describe pod swiggy-rs-pnpkl
+   56  kubectl get po
+   57  kubectl describe po swiggy-rs-6gsbg
+   58  kubectl delete rs swiggy-rs
+   59  kubectl get po
+   60  kubectl delete po pod1 pod2 pod3
+   61  vim minikube.sh
+   62  vim abc.yml
+   63  kubectl create -f abc.yml
+   64  kubectl get deploy
+   65  kubectl get rs
+   66  kubectl get po
+   67  kubectl describe deploy swiggy-rs
+   68  kubectl edit deploy/swiggy-rs
+   69  kubectl describe deploy swiggy-rs
+   70  kubectl edit deploy/swiggy-rs
+   71  kubectl describe deploy swiggy-rs
+   72  kubectl get po
+   73  kubectl describe pod swiggy-rs-54997d9b8d-9zxlm
+   74  kubectl describe pod swiggy-rs-54997d9b8d-jls4x
+   75  kubectl describe pod swiggy-rs-54997d9b8d-s69bx
+   76  kubectl scale deploy/swiggy-rs --replicas=10
+   77  kubectl get po
+   78  kubectl delete deploy swiggy-rs
+   79  cat abc.yml
+   80  history
